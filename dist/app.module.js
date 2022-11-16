@@ -19,6 +19,18 @@ const time_service_1 = require("./time/time.service");
 const keys_module_1 = require("./keys/keys.module");
 const typeorm_1 = require("@nestjs/typeorm");
 const servers_module_1 = require("./servers/servers.module");
+const dbOptions = typeof process.env.PG_DATABASE_URL === "string" &&
+    process.env.PG_DATABASE_URL.length > 0
+    ? {
+        url: process.env.PG_DATABASE_URL,
+    }
+    : {
+        host: process.env.PG_DATABASE_HOST,
+        port: +process.env.PG_DATABASE_PORT,
+        database: process.env.PG_DATABASE_NAME,
+        username: process.env.PG_DATABASE_USER,
+        password: process.env.PG_DATABASE_PASSWORD,
+    };
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -35,16 +47,12 @@ AppModule = __decorate([
             keys_module_1.KeysModule,
             servers_module_1.ServersModule,
             typeorm_1.TypeOrmModule.forRoot({
+                ...dbOptions,
                 type: "postgres",
-                host: process.env.PG_DATABASE_HOST,
-                port: +process.env.PG_DATABASE_PORT,
-                database: process.env.PG_DATABASE_NAME,
-                username: process.env.PG_DATABASE_USER,
-                password: process.env.PG_DATABASE_PASSWORD,
-                ssl: process.env.PG_DATABASE_SSL === "true",
                 extra: {
                     options: process.env.PG_DATABASE_EXTRA_OPTIONS,
                 },
+                ssl: process.env.PG_DATABASE_SSL === "true",
                 synchronize: process.env.SYNC_DATABASE === "true",
                 autoLoadEntities: true,
                 dropSchema: process.env.DROP_DATABASE === "true",
